@@ -1,4 +1,4 @@
-# Sandstone project
+# MC Markdown
 
 To build the datapack, run:
 ```ts
