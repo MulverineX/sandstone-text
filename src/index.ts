@@ -5,6 +5,7 @@
 
 import { tellraw } from 'sandstone/commands';
 import { MCFunction } from 'sandstone/core';
+import { createObjective } from "sandstone/variables";
 
 import marked from 'marked';
 import ld from 'lodash';
@@ -103,3 +104,5 @@ if (Object.keys(process).length !== 0) {
 console.log(`Raw:\n${input}`);
 console.log('\nLexed:', JSON.stringify(lexed, null, 2))
 console.log('\nText:', output);
+
+createObjective('md.testing', 'dummy');
