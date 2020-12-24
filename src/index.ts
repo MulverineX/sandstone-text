@@ -1,8 +1,3 @@
-/**
- * This file is just an example.
- * You can delete it!
- */
-
 import { tellraw } from 'sandstone/commands';
 import { MCFunction } from 'sandstone/core';
 import { createObjective } from "sandstone/variables";
