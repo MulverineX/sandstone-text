@@ -1,7 +1,7 @@
 import { SandstoneConfig } from 'sandstone/core'
 
 export default {
-  name: 'smc-markdown',
+  name: 'markdown',
   description: [ 'A', { text: 'Sandstone', color: 'gold' }, ' data pack.' ],
   formatVersion: 6,
   namespace: 'markdown',

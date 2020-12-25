@@ -13,91 +13,76 @@ test()
 
 const lexed = marked.lexer(input) as any[];
 
-let output: Array<string|any> = [''];
-
 const unset = new RegExp(`(?:${['paragraph', 'text'].join(')|(?:')})`);
 
-let process: { [index: number] : string[] } = {};
+enum text_type { raw, single, multiple };
 
-function parseType (out: any, type: string, i: number) {
-  let add: [ any, any ];
+type obj = { [index: string] : string|number|obj|Array<string|number|obj> };
 
-  switch (type) {
-    case 'strong': { add = [ 'bold', true ] } break;
-    case 'em': { add = [ 'italic', true ] } break;
-    case 'code': {
-      add = [ false, false ];
+class Text {
+  /**
+   * Text type
+   */
+  public type: text_type = 0;
 
-      if (process[i]) process[i] = [ ...process[i], 'code' ];
-      else process[i] = [ 'code' ];
-    } break;
-    default: { add = [ false, false ] }
-  }
-  
-  if (add[0]) out[add[0]] = add[1];
-}
-
-for (const [i, _entry] of lexed.entries()) {
-  let entry = ld.cloneDeep(_entry);
-
-  let out: any = { text: entry.text }
-
-  if (!unset.test(entry.type)) parseType(out, entry.type, i);
-
-  delete entry.type;
-  delete entry.raw;
-  delete entry.text;
-  const entries = entry.tokens;
-  delete entry.tokens;
-
-  if (Object.keys(entry).length !== 0) {
-    if (out._lexprops) out._lexprops = { ...out._lexprops, ...entry };
-    else out._lexprops = entry;
-  }
-
-  if (!entries) output.push(out);
-  else {
-    function tokens (entries: any[]) {
-      for (const _entry of entries) {
-        let entry = _entry;
-
-        out.text = entry.text;
-
-        if (!unset.test(entry.type)) parseType(out, entry.type, i);
-
-        delete entry.type;
-        delete entry.raw;
-        delete entry.text;
-        const entries = entry.tokens;
-        delete entry.tokens;
-
-        if (Object.keys(entry).length !== 0) {
-          if (out._lexprops) out._lexprops = [ ...out._lexprops, ...entry ];
-          else out._lexprops = entry;
-        }
-        
-        if (!entries) output.push(out);
-        else tokens(entries);
-      }
-    }
-    tokens(entries);
-  }
-}
-
-if (Object.keys(process).length !== 0) {
-  for (const [i, flags] of Object.entries(process)) {
-    for (const flag of flags) {
-      switch (flag) {
-        case 'code': {
-          output[parseInt(i)+1].text = `\`${output[parseInt(i)+1].text}\``
-        }
-      }
+  /**
+   * Get JSON
+   */
+  public output() {
+    switch (this.type) {
+      case 0: return this.lex[0].text as string;
+      case 1: return this.get_inner(this.get_props()) as obj|obj[];
+      case 2: return this.get_children() as obj[];
     }
   }
+
+  private lex: any;
+
+  private text: string = '';
+
+  private get_props() {
+    let lex = ld.cloneDeep(this.lex);
+
+    delete lex.type;
+    delete lex.raw;
+    delete lex.text;
+    delete lex.tokens;
+
+    return (lex);
+  }
+
+  private get_inner(props: any) {
+    const inner = new Text(this.lex[0].tokens);
+    
+    const inner_out = inner.output() as any;
+
+    if (typeof inner === 'string') return { ...props, text: inner_out };
+    else if (!Array.isArray(inner)) return { ...props, ...inner_out };
+    else return inner.get_children();
+  }
+
+  private get_children() {
+    let out: any[] = [];
+    for (const lex of this.lex) {
+      out.push((new Text([lex])).output());
+    }
+    return out;
+  }
+
+  constructor (lexed: any, parent: any = undefined) {
+    this.lex = lexed;
+
+    if (lexed.length === 1) {
+      if (lexed[0].type !== 'text') this.type = 1;
+    }
+    else this.type = 2;
+  }
 }
+
+const output = new Text(lexed);
 
 console.log(`Raw:\n${input}`);
 console.log('\nLexed:', JSON.stringify(lexed, null, 2))
-console.log('\nText:', output);
+console.log('\nText:', output.output());
 
 createObjective('md.testing', 'dummy');
