@@ -56,8 +56,8 @@ class Text {
     
     const inner_out = inner.output() as any;
 
-    if (typeof inner === 'string') return { ...props, text: inner_out };
-    else if (!Array.isArray(inner)) return { ...props, ...inner_out };
+    if (typeof inner_out === 'string') return { ...props, text: inner_out };
+    else if (!Array.isArray(inner_out)) return { ...props, ...inner_out };
     else return inner.get_children();
   }
 

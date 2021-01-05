@@ -1,7 +1,7 @@
 {
-  "name": "smc-markdown",
+  "name": "smc-text",
   "version": "0.0.1",
-  "description": "A data pack created with Sandstone",
+  "description": "A data pack library created with Sandstone",
   "scripts": {
     "watch": "sand watch",
     "build": "sand build"

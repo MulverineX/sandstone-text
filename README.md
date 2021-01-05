@@ -1,4 +1,4 @@
-# MC Markdown
+# Sandstone Minecraft Text Library
 
 To build the datapack, run:
 ```ts
